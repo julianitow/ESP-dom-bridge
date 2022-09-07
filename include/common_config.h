@@ -17,10 +17,13 @@
 
 #define HOSTNAME "ESP_BRIDGE"
 
-#define mqtt_server "share.alesia-julianitow.ovh"
-#define temperature_topic "sensor/temperature"
-#define humidity_topic "sensor/humidity"
-#define relay_set_on_topic "relay/set/on"
-#define relay_get_on_topic "relay/get/on"
+#define MQTT_HOST "share.alesia-julianitow.ovh"
+#define MQTT_USERNAME "soulpot"
+#define MQTT_PASSWORD "soulpot"
+#define MQTT_CLIENT_ID "ESP_BRIDGE"
+#define TEMP_TOPIC "sensor/temperature"
+#define HUM_TOPIC "sensor/humidity"
+#define RELAY_TOPIC "relay/get/on"
+#define RELAY_SET_TOPIC "relay/set/on"
 
 #endif

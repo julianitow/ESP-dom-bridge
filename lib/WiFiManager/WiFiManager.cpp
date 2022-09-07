@@ -1,5 +1,6 @@
 #include "WiFiManager.h"
 WiFiManager* WiFiManager::instance = nullptr;
+WiFiClient client;
 
 WiFiManager::WiFiManager() {
     Logger.Info("Hello from WiFiManager");
