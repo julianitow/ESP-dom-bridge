@@ -66,10 +66,9 @@ void setDioRelay(bool val) {
 }
 
 void parseData(String msg) {
-    String data(msg);
-    if (data.indexOf(",") != msg.length()) {
-        String prop1 = data.substring(1, data.indexOf(",") - 1);
-        String prop2 = data.substring(prop1.length() + 2, data.length() - 2);
+    if (msg.indexOf(",") != msg.length()) {
+        String prop1 = msg.substring(1, msg.indexOf(",") - 1);
+        String prop2 = msg.substring(prop1.length() + 2, msg.length() - 2);
         prop1 = prop1.substring(1, prop1.length() - 2);
         prop2 = prop2.substring(1, prop2.length() - 2);
         String val1 = prop1.substring(prop1.indexOf(":") + 2, prop1.length());
@@ -84,7 +83,6 @@ void parseData(String msg) {
         String values[size] = {val1, val2};
 
         int value;
-        bool sprinkle;
         for (int i = 0; i < size; i++) {
             if (props[i] == "state") {
                 bool val = values[i] == "true" ? true : false;
