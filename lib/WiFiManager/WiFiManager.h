@@ -16,7 +16,6 @@ class WiFiManager {
 
     public:
     static WiFiManager* getInstance();
-    WiFiClient client;
     void config(String, String, int = 10000);
     bool connect();
     bool isConnected();

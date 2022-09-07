@@ -23,7 +23,7 @@
 #define MQTT_CLIENT_ID "ESP_BRIDGE"
 #define TEMP_TOPIC "sensor/temperature"
 #define HUM_TOPIC "sensor/humidity"
-#define RELAY_TOPIC "relay/get/on"
-#define RELAY_SET_TOPIC "relay/set/on"
+#define RELAY_TOPIC "relay"
+#define RELAY_SET_TOPIC "relay/set"
 
 #endif
