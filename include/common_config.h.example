@@ -5,7 +5,7 @@
 #define UNIX_TIME_NOV_13_2017 1510592825
 
 #define PST_TIME_ZONE -8
-#define PST_TIME_ZONE_DAYLIGHT_SAVINGS_DIFF   1
+#define PST_TIME_ZONE_DAYLIGHT_SAVINGS_DIFF 1
 
 #define GMT_OFFSET_SECS (PST_TIME_ZONE * 3600)
 #define GMT_OFFSET_SECS_DST ((PST_TIME_ZONE + PST_TIME_ZONE_DAYLIGHT_SAVINGS_DIFF) * 3600)
@@ -15,15 +15,18 @@
 #define ESP_RECV_PIN D2
 #define ESP_EMIT_PIN D6
 
+#define _SSID ""
+#define WPA_KEY ""
 #define HOSTNAME "ESP_BRIDGE"
-
-#define MQTT_HOST "share.alesia-julianitow.ovh"
-#define MQTT_USERNAME "soulpot"
-#define MQTT_PASSWORD "soulpot"
+#define MQTT_HOST ""
+#define MQTT_PORT 1883
+#define MQTT_USERNAME ""
+#define MQTT_PASSWORD ""
 #define MQTT_CLIENT_ID "ESP_BRIDGE"
 #define TEMP_TOPIC "sensor/temperature"
 #define HUM_TOPIC "sensor/humidity"
 #define RELAY_TOPIC "relay"
 #define RELAY_SET_TOPIC "relay/set"
+#define LOG_TOPIC "logs"
 
 #endif
