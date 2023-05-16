@@ -158,7 +158,8 @@ void mqttCallback(char *tpc, byte *payload, unsigned int length)
 void setup()
 {
   Serial.begin(SERIAL_LOGGER_BAUD_RATE);
-  Logger.Info("Hello from ESP Bridge");
+  String helloStr = "Hello from ESP Bridge v" + String(FIRMWARE_VERSION);
+  Logger.Info(helloStr);
   attachInterrupt(digitalPinToInterrupt(ESP_RECV_PIN), ext_int_1, CHANGE);
 
   wifiManager = WiFiManager::getInstance();
