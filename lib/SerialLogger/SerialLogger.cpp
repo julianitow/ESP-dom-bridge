@@ -8,7 +8,7 @@
 
 static void writeTime()
 {
-  struct tm* ptm;
+  struct tm *ptm;
   time_t now = time(NULL);
 
   ptm = gmtime(&now);
@@ -44,48 +44,53 @@ static void writeTime()
   Serial.print(ptm->tm_sec);
 }
 
-void SerialLogger::initializeTime() {
+void SerialLogger::initializeTime()
+{
   Logger.Info("Setting time using SNTP");
   configTime(GMT_OFFSET_SECS, GMT_OFFSET_SECS_DST, NTP_SERVERS);
   time_t now = time(NULL);
   while (now < UNIX_TIME_NOV_13_2017)
   {
-      delay(500);
-      Serial.print(".");
-      now = time(nullptr);
+    delay(500);
+    Serial.print(".");
+    now = time(nullptr);
   }
   Serial.println("");
   Logger.Info("Time initialized!");
 }
 
+void SerialLogger::setWebServer(WebServer *server)
+{
+  SerialLogger::server = server;
+}
+
 SerialLogger::SerialLogger() { Serial.begin(SERIAL_LOGGER_BAUD_RATE); }
+
+void SerialLogger::print(String level, String message)
+{
+  writeTime();
+  Serial.print(level);
+  Serial.println(message);
+}
 
 void SerialLogger::Debug(String message)
 {
-  writeTime();
-  Serial.print(" [DEBUG] ");
-  Serial.println(message);
+  SerialLogger::print(" [DEBUG] ", message);
 }
 
 void SerialLogger::Error(String message)
 {
-  writeTime();
-  Serial.print(" [ERROR] ");
-  Serial.println(message);
+  SerialLogger::print(" [ERROR] ", message);
 }
 
 void SerialLogger::Info(String message)
 {
-  writeTime();
-  Serial.print(" [INFO] ");
-  Serial.println(message);
+  SerialLogger::print(" [INFO] ", message);
 }
 
 void SerialLogger::Warning(String message)
 {
-  writeTime();
-  Serial.print(" [WARNING] ");
-  Serial.println(message);
+  SerialLogger::print(" [WARNING] ", message);
 }
 
 SerialLogger Logger;
