@@ -28,5 +28,6 @@
 #define RELAY_TOPIC "relay"
 #define RELAY_SET_TOPIC "relay/set"
 #define LOG_TOPIC "logs"
+#define WEB_SERVER_PORT 80
 
 #endif

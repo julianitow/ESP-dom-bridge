@@ -3,7 +3,7 @@
 #include <EEPROM.h>
 #include <Oregon.h>
 #include <PubSubClient.h>
-
+#include "../lib/WebServer/WebServer.h"
 #include "../include/common_config.h"
 
 #include "SerialLogger.h"
@@ -23,8 +23,15 @@ const unsigned long OFF_CODE = 1278825088;
 
 WiFiManager *wifiManager;
 WiFiClient wifiClient;
+
 PubSubClient mqttClient(MQTT_HOST, MQTT_PORT, wifiClient);
 DiOremote myRemote = DiOremote(ESP_EMIT_PIN);
+
+void startWebServer()
+{
+  WebServer *server = new WebServer();
+  server->start(true);
+}
 
 void routine()
 {
@@ -119,6 +126,11 @@ void parseData(String msg)
   }
 }
 
+void sendIP()
+{
+  mqttClient.publish(GIVE_IP, WiFi.localIP().toString().c_str(), true);
+}
+
 void mqttCallback(char *tpc, byte *payload, unsigned int length)
 {
   unsigned int i = 0;
@@ -137,6 +149,10 @@ void mqttCallback(char *tpc, byte *payload, unsigned int length)
   {
     parseData(msgString);
   }
+  else if (topic == ASK_IP)
+  {
+    sendIP();
+  }
 }
 
 void setup()
@@ -154,6 +170,7 @@ void setup()
     {
       mqttClient.setCallback(mqttCallback);
       mqttClient.subscribe(RELAY_SET_TOPIC);
+      mqttClient.subscribe(ASK_IP);
       Logger.Info("MQTT broker connected !");
     }
     else
@@ -161,6 +178,7 @@ void setup()
       Logger.Error("while connecting to MQTT broker");
     }
   }
+  startWebServer();
 }
 
 void loop()
