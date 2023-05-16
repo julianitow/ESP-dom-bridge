@@ -59,10 +59,10 @@ void SerialLogger::initializeTime()
   Logger.Info("Time initialized!");
 }
 
-void SerialLogger::setWebServer(WebServer *server)
+/*void SerialLogger::setWebServer(WebServer *server)
 {
   SerialLogger::server = server;
-}
+}*/
 
 SerialLogger::SerialLogger() { Serial.begin(SERIAL_LOGGER_BAUD_RATE); }
 

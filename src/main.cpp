@@ -30,7 +30,8 @@ DiOremote myRemote = DiOremote(ESP_EMIT_PIN);
 void startWebServer()
 {
   WebServer *server = new WebServer();
-  server->start(true);
+  server->start(true, []()
+                { Logger.Info("CALLBACK called"); });
 }
 
 void routine()
