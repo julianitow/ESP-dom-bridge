@@ -1,17 +1,20 @@
 #include "SerialLogger.h"
 #include "WebServer.h"
 #include <AsyncElegantOTA.h>
+#include <WebSerial.h>
+
+bool WebServer::available = false;
 
 WebServer::WebServer()
 {
     this->server = new AsyncWebServer(WEB_SERVER_PORT);
-    this->ws = new AsyncWebSocket("/ws");
+    // this->ws = new AsyncWebSocket("/ws");
 }
 
 WebServer::WebServer(int port)
 {
     this->server = new AsyncWebServer(port);
-    this->ws = new AsyncWebSocket("/ws");
+    // this->ws = new AsyncWebSocket("/ws");
 }
 
 void WebServer::socketHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
@@ -45,16 +48,17 @@ void WebServer::socketHandler(AsyncWebSocket *server, AsyncWebSocketClient *clie
 
 void WebServer::start(bool enableOTA, void (*callback)(void))
 {
-    this->ws->onEvent(this->socketHandler);
+    WebSerial.begin(this->server);
+    // this->ws->onEvent(this->socketHandler);
     this->server->addHandler(this->ws);
     if (enableOTA)
     {
         this->enableOTA();
     }
     this->server->on("/", HTTP_GET, WebServer::indexRoute);
-    this->server->on("/logs", HTTP_GET, WebServer::loggingRoute);
     this->server->onNotFound(WebServer::notFoundRoute);
     this->server->begin();
+    WebServer::available = true;
 }
 
 void WebServer::enableOTA()
@@ -71,62 +75,4 @@ void WebServer::indexRoute(AsyncWebServerRequest *request)
 {
     String index = "INDEX PAGE TO DO";
     request->send(200, "text/plain", index);
-}
-
-void WebServer::loggingRoute(AsyncWebServerRequest *request)
-{
-    // TODO MOVE IT FROM HERE
-    const char *loggingHtml = R"rawliteral(
-        <!DOCTYPE HTML><html>
-        <head>
-        <title>ESP Web Logging</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" href="data:,">
-        <style>
-            .content {
-                padding: 30px;
-                max-width: 600px;
-                margin: 0 auto;
-            }
-        </style>
-        <title>ESP Web Logging</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" href="data:,">
-        </head>
-        <body>
-        <div>
-            <h1>ESP WebSocket Loging</h1>
-        </div>
-        <div class="content">
-
-        </div>
-        <script>
-        var gateway = `ws://${window.location.hostname}/ws`;
-        var websocket;
-        window.addEventListener('load', onLoad);
-        function initWebSocket() {
-            console.log('Trying to open a WebSocket connection...');
-            websocket = new WebSocket(gateway);
-            websocket.onopen    = onOpen;
-            websocket.onclose   = onClose;
-            websocket.onmessage = onMessage;
-        }
-        function onOpen(event) {
-            console.log('Connection opened');
-        }
-        function onClose(event) {
-            console.log('Connection closed');
-            setTimeout(initWebSocket, 2000);
-        }
-        function onMessage(event) {
-            console.log(event);
-        }
-        function onLoad(event) {
-            initWebSocket();
-        }
-        </script>
-        </body>
-        </html>)rawliteral";
-
-    request->send(200, "text/html", loggingHtml);
 }

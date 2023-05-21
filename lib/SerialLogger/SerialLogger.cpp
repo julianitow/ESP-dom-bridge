@@ -44,6 +44,44 @@ static void writeTime()
   Serial.print(ptm->tm_sec);
 }
 
+static void webWriteTime()
+{
+  struct tm *ptm;
+  time_t now = time(NULL);
+
+  ptm = gmtime(&now);
+
+  WebSerial.print(ptm->tm_year + UNIX_EPOCH_START_YEAR);
+  WebSerial.print("/");
+  WebSerial.print(ptm->tm_mon + 1);
+  WebSerial.print("/");
+  WebSerial.print(ptm->tm_mday);
+  WebSerial.print(" ");
+
+  if (ptm->tm_hour < 10)
+  {
+    WebSerial.print(0);
+  }
+
+  WebSerial.print(ptm->tm_hour);
+  WebSerial.print(":");
+
+  if (ptm->tm_min < 10)
+  {
+    WebSerial.print(0);
+  }
+
+  WebSerial.print(ptm->tm_min);
+  WebSerial.print(":");
+
+  if (ptm->tm_sec < 10)
+  {
+    WebSerial.print(0);
+  }
+
+  WebSerial.print(ptm->tm_sec);
+}
+
 void SerialLogger::initializeTime()
 {
   Logger.Info("Setting time using SNTP");
@@ -59,11 +97,6 @@ void SerialLogger::initializeTime()
   Logger.Info("Time initialized!");
 }
 
-/*void SerialLogger::setWebServer(WebServer *server)
-{
-  SerialLogger::server = server;
-}*/
-
 SerialLogger::SerialLogger() { Serial.begin(SERIAL_LOGGER_BAUD_RATE); }
 
 void SerialLogger::print(String level, String message)
@@ -71,6 +104,11 @@ void SerialLogger::print(String level, String message)
   writeTime();
   Serial.print(level);
   Serial.println(message);
+  if (WEB_SERIAL && WebServer::available)
+  {
+    WebSerial.print(level);
+    WebSerial.println(message);
+  }
 }
 
 void SerialLogger::Debug(String message)

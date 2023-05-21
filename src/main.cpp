@@ -9,9 +9,6 @@
 #include "SerialLogger.h"
 #include "WiFiManager.h"
 
-IRAM_ATTR void ext_int_1();
-// void mqttCallback(char*, byte*, unsigned int);
-
 int temp = 0;
 long lastMsg = 0;
 long lastLog = 0;

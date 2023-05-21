@@ -5,8 +5,9 @@
 #define SERIALLOGGER_H
 
 #include <Arduino.h>
+#include <WebSerial.h>
+#include <WebServer.h>
 #include "../../include/common_config.h"
-// #include "WebServer.h"
 
 #ifndef SERIAL_LOGGER_BAUD_RATE
 #define SERIAL_LOGGER_BAUD_RATE 115200
@@ -16,12 +17,10 @@ class SerialLogger
 {
 private:
   static void print(String level, String message);
-  //  static WebServer *server;
 
 public:
   SerialLogger();
   static void initializeTime();
-  // void setWebServer(WebServer *server);
   void Debug(String message);
   void Error(String message);
   void Info(String message);

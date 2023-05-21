@@ -14,11 +14,11 @@ private:
     void callback();
 
 public:
+    static bool available;
     WebServer();
     WebServer(int port);
     void start(bool enableOTA, void (*callback)());
     static void notFoundRoute(AsyncWebServerRequest *request);
     static void indexRoute(AsyncWebServerRequest *request);
-    static void loggingRoute(AsyncWebServerRequest *request);
 };
 #endif
