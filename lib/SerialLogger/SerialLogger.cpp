@@ -87,11 +87,18 @@ void SerialLogger::initializeTime()
   Logger.Info("Setting time using SNTP");
   configTime(GMT_OFFSET_SECS, GMT_OFFSET_SECS_DST, NTP_SERVERS);
   time_t now = time(NULL);
+  float timeout = 0;
   while (now < UNIX_TIME_NOV_13_2017)
   {
     delay(500);
     Serial.print(".");
     now = time(nullptr);
+    timeout += 0.5;
+    if (timeout == 10)
+    {
+      Logger.Error("Initialize time timeout");
+      return;
+    }
   }
   Serial.println("");
   Logger.Info("Time initialized!");
