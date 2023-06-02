@@ -17,7 +17,7 @@ public:
     static bool available;
     WebServer();
     WebServer(int port);
-    void start(bool enableOTA, void (*callback)());
+    void start(bool enableOTA, void (*callback)(uint8_t *data, size_t len));
     static void notFoundRoute(AsyncWebServerRequest *request);
     static void indexRoute(AsyncWebServerRequest *request);
 };

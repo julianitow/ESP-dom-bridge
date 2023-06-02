@@ -46,11 +46,12 @@ void WebServer::socketHandler(AsyncWebSocket *server, AsyncWebSocketClient *clie
     }
 }
 
-void WebServer::start(bool enableOTA, void (*callback)(void))
+void WebServer::start(bool enableOTA, void (*callback)(uint8_t *data, size_t len))
 {
     WebSerial.begin(this->server);
+    // WebSerial.msgCallback(callback);
     // this->ws->onEvent(this->socketHandler);
-    this->server->addHandler(this->ws);
+    // this->server->addHandler(this->ws);
     if (enableOTA)
     {
         this->enableOTA();

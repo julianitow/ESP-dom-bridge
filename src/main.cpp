@@ -5,11 +5,13 @@
 #include <PubSubClient.h>
 #include "../lib/WebServer/WebServer.h"
 #include "../include/common_config.h"
+#include <IRremote.h>
+#include "IRManager.h"
 
 #include "SerialLogger.h"
 #include "WiFiManager.h"
 
-IRAM_ATTR void ext_int_1(); // 
+IRAM_ATTR void ext_int_1(); // DOT NOT REMOVE
 
 int temp = 0;
 long lastMsg = 0;
@@ -26,14 +28,31 @@ WiFiClient wifiClient;
 PubSubClient mqttClient(MQTT_HOST, MQTT_PORT, wifiClient);
 DiOremote myRemote = DiOremote(ESP_EMIT_PIN);
 
+IRManager *IR;
+
 void startWebServer()
 {
   WebServer *server = new WebServer();
-  server->start(true, []()
+  server->start(true, [](uint8_t *data, size_t len)
                 { Logger.Info("CALLBACK called"); });
 }
 
-void routine()
+void startIRManager()
+{
+  IR = new IRManager();
+}
+
+void listen2IR()
+{
+  IR->listen();
+}
+
+void sendIR()
+{
+  IR->send();
+}
+
+void listen2RF()
 {
   long now = millis();
   cli();
@@ -47,7 +66,6 @@ void routine()
     {
       const byte *DataDecoded = DataToDecoder(orscV2);
       byte source = channel(DataDecoded);
-      int src = int(source);
       temp = temperature(DataDecoded);
       int batt = battery(DataDecoded);
       int hum = humidity(DataDecoded);
@@ -77,6 +95,12 @@ void routine()
     lastLog = now;
     mqttClient.publish(LOG_TOPIC, "Running.. System seems ok.", true);
   }
+}
+
+void routine()
+{
+  listen2RF();
+  listen2IR();
 }
 
 void setDioRelay(bool val)
@@ -153,6 +177,10 @@ void mqttCallback(char *tpc, byte *payload, unsigned int length)
   {
     sendIP();
   }
+  else if (topic == AMPLI_SET_TOPIC)
+  {
+    sendIR();
+  }
 }
 
 void setup()
@@ -172,6 +200,7 @@ void setup()
       mqttClient.setCallback(mqttCallback);
       mqttClient.subscribe(RELAY_SET_TOPIC);
       mqttClient.subscribe(ASK_IP);
+      mqttClient.subscribe(AMPLI_SET_TOPIC);
       Logger.Info("MQTT broker connected !");
     }
     else
@@ -179,6 +208,7 @@ void setup()
       Logger.Error("while connecting to MQTT broker");
     }
   }
+  startIRManager();
   startWebServer();
 }
 

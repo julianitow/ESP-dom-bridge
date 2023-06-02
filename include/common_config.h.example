@@ -15,6 +15,9 @@
 #define ESP_RECV_PIN D2
 #define ESP_EMIT_PIN D6
 
+#define IR_RECV_PIN D7
+#define IR_EMIT_PIN D5
+
 #define _SSID ""
 #define WPA_KEY ""
 #define HOSTNAME "ESP_BRIDGE"
