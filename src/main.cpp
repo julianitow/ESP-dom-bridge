@@ -66,10 +66,12 @@ void listen2RF()
     {
       const byte *DataDecoded = DataToDecoder(orscV2);
       byte source = channel(DataDecoded);
+      const char* type = OregonType(DataDecoded);
       temp = temperature(DataDecoded);
       int batt = battery(DataDecoded);
       int hum = humidity(DataDecoded);
-      if (source == 1 && temp < 30 && temp > 0 && batt > 50)
+      String tempStr = "";
+      if (strcmp(OREGON_TYPE, type) == 0 && source == 1 && temp < 30 && temp > 0 && batt > 0)
       {
         String json = "{\"source\":";
         json += String(source);
@@ -80,12 +82,13 @@ void listen2RF()
         json += ",\"battery\":\"";
         json += battery(DataDecoded) > 50 ? "ok" : "low";
         json += "\"}";
+        tempStr += temperature(DataDecoded);
         Logger.Debug(json);
         if (now - lastMsg > 1000 * 60)
         {
           lastMsg = now;
         }
-        mqttClient.publish(TEMP_TOPIC, String(temp).c_str(), true);
+        mqttClient.publish(TEMP_TOPIC, tempStr.c_str(), true);
         mqttClient.publish(HUM_TOPIC, String(hum).c_str(), true);
       }
     }
