@@ -3,6 +3,7 @@
 #include <EEPROM.h>
 #include <Oregon.h>
 #include <PubSubClient.h>
+#include <Scheduler.h>
 #include "../lib/WebServer/WebServer.h"
 #include "../include/common_config.h"
 #include <IRremote.h>
@@ -10,6 +11,8 @@
 
 #include "SerialLogger.h"
 #include "WiFiManager.h"
+#include "Led/BlinkTask.h"
+#include "Main/Main.h"
 
 IRAM_ATTR void ext_int_1(); // DOT NOT REMOVE
 
@@ -188,11 +191,16 @@ void mqttCallback(char *tpc, byte *payload, unsigned int length)
 
 void setup()
 {
+  BlinkTask* ledTask = new BlinkTask();
+  MainTask* mainTask = new MainTask();
+
+  Scheduler.start(task);
+  Scheduler.start(mainTask);
+  //Scheduler.begin();
   Serial.begin(SERIAL_LOGGER_BAUD_RATE);
   String helloStr = "Hello from ESP Bridge v" + String(FIRMWARE_VERSION);
   Logger.Info(helloStr);
   attachInterrupt(digitalPinToInterrupt(ESP_RECV_PIN), ext_int_1, CHANGE);
-
   wifiManager = WiFiManager::getInstance();
   wifiManager->config(_SSID, WPA_KEY);
   if (wifiManager->connect())

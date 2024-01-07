@@ -5,7 +5,7 @@ WiFiClient client;
 WiFiManager::WiFiManager() {
     Logger.Info("Hello from WiFiManager");
     WiFi.setHostname(HOSTNAME);
-    WiFi.mode(WIFI_STA);
+    //WiFi.mode(WIFI_STA);
 }
 
 WiFiManager* WiFiManager::getInstance() {
@@ -28,7 +28,7 @@ bool WiFiManager::connect() {
     }
     WiFi.begin(this->ssid.c_str(), this->password.c_str());
     Logger.Info("WiFiManager: connecting to ");
-    Serial.print(ssid.c_str());
+    Logger.Info(ssid.c_str());
     const unsigned long begin = millis();
     while(WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
@@ -40,8 +40,7 @@ bool WiFiManager::connect() {
         delay(1000);
     }
     Serial.println();
-    Logger.Info("WiFiManager: successfully connected, ip address: ");
-    Serial.println(WiFi.localIP());
+    Logger.Info("WiFiManager: successfully connected, ip address: " + WiFi.localIP().toString());
     return true;
 }
 

@@ -19,6 +19,7 @@ class WiFiManager {
     void config(String, String, int = 10000);
     bool connect();
     bool isConnected();
+    bool toggleSTA(bool);
 };
 
 #endif
