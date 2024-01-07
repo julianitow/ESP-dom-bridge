@@ -1,6 +1,9 @@
 #include "IRManager.h"
 #include "SerialLogger.h"
 
+#include "../../include/common_config.h"
+#include <IRremoteInt.h>
+
 IRManager::IRManager()
 {
     Logger.Info("Hello from IRManager");

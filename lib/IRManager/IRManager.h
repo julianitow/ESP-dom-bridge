@@ -2,9 +2,6 @@
 #define IR_MANAGER_H
 #define USE_IRREMOTE_HPP_AS_PLAIN_INCLUDE // prevent IRRemote multiple definitions linker error
 
-#include "../../include/common_config.h"
-#include <IRremoteInt.h>
-
 class IRManager
 {
 private:
