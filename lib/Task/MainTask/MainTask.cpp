@@ -3,6 +3,7 @@
 
 #include "BlinkTask/BlinkTask.h"
 
+#include <time.h>
 #include <EEPROM.h>//Mandatory to be placed here (multiple definitions error)
 #include <Oregon.h>//Mandatory to be placed here (multiple definitions error)
 
@@ -41,6 +42,7 @@ void MainTask::setup() {
             mqttClient.subscribe(RELAY_SET_TOPIC);
             mqttClient.subscribe(ASK_IP);
             mqttClient.subscribe(AMPLI_SET_TOPIC);
+            mqttClient.subscribe(ASK_DATA_TOPIC);
             Logger.Info("MQTT broker connected !");
             BlinkTask::getInstance()->status = STAY;
         }
@@ -82,6 +84,8 @@ void MainTask::listen2RF() {
             if (strcmp(OREGON_TYPE, type) == 0 && source == 1 && temp < 30 && temp > 0 && batt > 0)
             {
                 BlinkTask::getInstance()->status = BLINK_FAST;
+                this->lastData.temp = temperature(DataDecoded);
+                this->lastData.hum = humidity(DataDecoded);
                 String json = "{\"source\":";
                 json += String(source);
                 json += ",\"temperature\":";
@@ -91,7 +95,7 @@ void MainTask::listen2RF() {
                 json += ",\"battery\":\"";
                 json += battery(DataDecoded) > 50 ? "ok" : "low";
                 json += "\"}";
-            tempStr += temperature(DataDecoded);
+                tempStr += this->lastData.temp;
                 Logger.Debug(json);
                 if (now - lastMsg > 1000 * 60)
                 {
@@ -100,6 +104,7 @@ void MainTask::listen2RF() {
                 mqttClient.publish(TEMP_TOPIC, tempStr.c_str(), true);
                 mqttClient.publish(HUM_TOPIC, String(hum).c_str(), true);
 
+                this->lastData.datetime = time(nullptr);
             }
         }
     }
@@ -183,6 +188,12 @@ void MainTask::mqttCallback(char *tpc, byte *payload, unsigned int length) {
     else if (topic == AMPLI_SET_TOPIC)
     {
         MainTask::getInstance()->IR->send();
+    } else if (topic == ASK_DATA_TOPIC) {
+        String str = "";
+        str += MainTask::lastData.temp;
+        str += ";" + String(MainTask::lastData.hum);
+        str += ";" + String(MainTask::lastData.datetime);
+        MainTask::getInstance()->mqttClient.publish(LAST_DATA_TOPIC, str.c_str(), true);
     }
     BlinkTask::getInstance()->status = STAY;
 }
