@@ -196,7 +196,7 @@ void setup()
   Serial.begin(SERIAL_LOGGER_BAUD_RATE);
   //attachInterrupt(digitalPinToInterrupt(ESP_RECV_PIN), ext_int_1, CHANGE);
 
-  BlinkTask* ledTask = new BlinkTask();
+  BlinkTask* ledTask = BlinkTask::getInstance();
   MainTask* mainTask = MainTask::getInstance();
 
   Scheduler.start(ledTask);

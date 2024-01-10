@@ -13,6 +13,12 @@
 #include "WiFiManager.h"
 #include "WebServer.h"
 
+struct OregonData {
+    float temp = 0;
+    int hum = 0;
+    int datetime = 0;
+};
+
 class MainTask : public Task {
 
     public:
@@ -32,11 +38,13 @@ class MainTask : public Task {
         IRManager *IR;
         WiFiClient wifiClient;
         PubSubClient mqttClient;
-        DiOremote dioRemote;
+        //DiOremote dioRemote;
 
         int temp = 0;
         long lastMsg = 0;
         long lastLog = 0;
+
+        static OregonData lastData;
 
         const unsigned long ON_CODE = 1278825104;
         const unsigned long OFF_CODE = 1278825088;

@@ -1,12 +1,15 @@
 #include "MainTask.h"
 #include "SerialLogger.h"
 
+#include "BlinkTask/BlinkTask.h"
+
 #include <EEPROM.h>//Mandatory to be placed here (multiple definitions error)
 #include <Oregon.h>//Mandatory to be placed here (multiple definitions error)
 
 IRAM_ATTR void ext_int_1(); // DOT NOT REMOVE
 
 MainTask* MainTask::_instance;
+OregonData MainTask::lastData;
 
 MainTask* MainTask::getInstance() {
     if (MainTask::_instance == nullptr) {
@@ -39,11 +42,16 @@ void MainTask::setup() {
             mqttClient.subscribe(ASK_IP);
             mqttClient.subscribe(AMPLI_SET_TOPIC);
             Logger.Info("MQTT broker connected !");
+            BlinkTask::getInstance()->status = STAY;
         }
         else
         {
             Logger.Error("while connecting to MQTT broker");
+            BlinkTask::getInstance()->status = ERROR;
         }
+        this->startWebServer();
+    } else {
+        BlinkTask::getInstance()->status = ERROR;
     }
 }
 
@@ -64,40 +72,44 @@ void MainTask::listen2RF() {
     {
         if (orscV2.nextPulse(p))
         {
-        const byte *DataDecoded = DataToDecoder(orscV2);
-        byte source = channel(DataDecoded);
-        const char* type = OregonType(DataDecoded);
-        temp = temperature(DataDecoded);
-        int batt = battery(DataDecoded);
-        int hum = humidity(DataDecoded);
-        String tempStr = "";
-        if (strcmp(OREGON_TYPE, type) == 0 && source == 1 && temp < 30 && temp > 0 && batt > 0)
-        {
-            String json = "{\"source\":";
-            json += String(source);
-            json += ",\"temperature\":";
-            json += temperature(DataDecoded);
-            json += ",\"humidity\":";
-            json += humidity(DataDecoded);
-            json += ",\"battery\":\"";
-            json += battery(DataDecoded) > 50 ? "ok" : "low";
-            json += "\"}";
-            tempStr += temperature(DataDecoded);
-            Logger.Debug(json);
-            if (now - lastMsg > 1000 * 60)
+            const byte *DataDecoded = DataToDecoder(orscV2);
+            byte source = channel(DataDecoded);
+            const char* type = OregonType(DataDecoded);
+            temp = temperature(DataDecoded);
+            int batt = battery(DataDecoded);
+            int hum = humidity(DataDecoded);
+            String tempStr = "";
+            if (strcmp(OREGON_TYPE, type) == 0 && source == 1 && temp < 30 && temp > 0 && batt > 0)
             {
-            lastMsg = now;
+                BlinkTask::getInstance()->status = BLINK_FAST;
+                String json = "{\"source\":";
+                json += String(source);
+                json += ",\"temperature\":";
+                json += temperature(DataDecoded);
+                json += ",\"humidity\":";
+                json += humidity(DataDecoded);
+                json += ",\"battery\":\"";
+                json += battery(DataDecoded) > 50 ? "ok" : "low";
+                json += "\"}";
+            tempStr += temperature(DataDecoded);
+                Logger.Debug(json);
+                if (now - lastMsg > 1000 * 60)
+                {
+                lastMsg = now;
+                }
+                mqttClient.publish(TEMP_TOPIC, tempStr.c_str(), true);
+                mqttClient.publish(HUM_TOPIC, String(hum).c_str(), true);
+
             }
-            mqttClient.publish(TEMP_TOPIC, tempStr.c_str(), true);
-            mqttClient.publish(HUM_TOPIC, String(hum).c_str(), true);
-        }
         }
     }
     if (now - lastLog > 1000 * 60)
     {
         lastLog = now;
         mqttClient.publish(LOG_TOPIC, "Running.. System seems ok.", true);
+        BlinkTask::getInstance()->status = BLINK_FAST;
     }
+    BlinkTask::getInstance()->status = STAY;
 }
 
 void MainTask::setDioRelay(bool val)
@@ -147,6 +159,7 @@ void MainTask::parseData(String msg) {
 }
 
 void MainTask::mqttCallback(char *tpc, byte *payload, unsigned int length) {
+    BlinkTask::getInstance()->status = BLINK_FAST;
     char message_buff[100];
     unsigned int i = 0;
     String topic = String(tpc);
@@ -171,6 +184,7 @@ void MainTask::mqttCallback(char *tpc, byte *payload, unsigned int length) {
     {
         MainTask::getInstance()->IR->send();
     }
+    BlinkTask::getInstance()->status = STAY;
 }
 
 void MainTask::startWebServer() {
